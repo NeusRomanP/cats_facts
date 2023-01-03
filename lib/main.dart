@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  String _fact = "";
+  Future<String>? _fact;
 
   Future<String> getFact() async {
 
@@ -33,11 +33,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState(){
     super.initState();
-    getFact().then((String result) => {
-      setState(()=>{
-        _fact = result
-      })
-    });
+    _fact = getFact();
   }
 
   @override
@@ -48,21 +44,33 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: Text("Cats facts"),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Center(
-            child: Container(
-              child: Text(
-                _fact,
-                style: TextStyle(
-                  fontSize: 24
+        body: FutureBuilder(
+          future: _fact,
+          builder: (context, snapshot) {
+            if(snapshot.hasData){
+              print(snapshot.data);
+              return Padding(
+                padding: const EdgeInsets.all(30),
+                child: Center(
+                  child: Container(
+                    child: Text(
+                      snapshot.data.toString(),
+                      style: TextStyle(
+                        fontSize: 24
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
+              );
+            }else if(snapshot.hasError){
+              return Text("Error");
+            }
+            return Center(child: CircularProgressIndicator(),);
+          },
         ),
       ),
     );
   }
 }
+
